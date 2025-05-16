@@ -20,7 +20,7 @@ def load_dataset(path=None, update_date=None, modules=None):
                       'month_11':76, 'month_12':77}
     df = pd.read_csv(path, delimiter=';', parse_dates=[0], index_col = 0)
     df[list(indicator_vars.keys())] = df[list(indicator_vars.keys())].astype('int')
-    df = df.tz_localize('utc')
+    df = df.tz_convert('utc')
     df = df.sort_index()
     
     if update_date:

@@ -8,7 +8,7 @@ import time as t
 import numpy as np
 import pandas as pd
 from pandas import read_csv
-from pandas import datetime
+import datetime
 from numpy import newaxis
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -167,10 +167,15 @@ def train_model(model=None, y=None, X=None, mode='train_on_batch', batch_size=1,
             mean_train_accu = []
             num_batches = int(X.shape[0] / batch_size)
             for s in range(num_batches): 
-                loss, accu = model.train_on_batch(
-                    np.reshape(np.array(X[s*batch_size:(s+1)*batch_size,:]), (batch_size,timesteps,X.shape[1])),
-                    y[s*batch_size:(s+1)*batch_size], callbacks=[early_stop]
-                )
+                # loss, accu = model.train_on_batch(
+                #     np.reshape(np.array(X[s*batch_size:(s+1)*batch_size,:]), (batch_size,timesteps,X.shape[1])),
+                #     y[s*batch_size:(s+1)*batch_size], callbacks=[early_stop]
+                # )
+                batch_X = X[s*batch_size:(s+1)*batch_size]   # keep (batch_size, 7, 1)
+                batch_y = y[s*batch_size:(s+1)*batch_size]
+
+                # Keras will transform numpy into tensor
+                loss, accu = model.train_on_batch(batch_X, batch_y)
                 mean_train_loss.append(loss)
                 mean_train_accu.append(accu)
             # TODO: Check if here or above makes more sense.
@@ -185,7 +190,7 @@ def train_model(model=None, y=None, X=None, mode='train_on_batch', batch_size=1,
                                ], tablefmt="jira", numalign="right", floatfmt=".3f"))
             stopper = t.time()
             history['loss'].append(mean_train_loss)
-            history['acc'].append(mean_train_accu)
+            history['accu'].append(mean_train_accu)
             
     elif mode == 'fit':
        
@@ -215,10 +220,13 @@ def train_model(model=None, y=None, X=None, mode='train_on_batch', batch_size=1,
         # Fitting the model. Keras function
         history = model.fit(
             shuffle=False,
-            x=np.reshape(np.array(X_train), (X_train.shape[0], timesteps, X_train.shape[1])),
+            x=X_train,
             y=y_train,
             validation_split=effective_split,
-            batch_size=batch_size, epochs=epochs, verbose=verbose, callbacks=[early_stop]
+            batch_size=batch_size,
+            epochs=epochs,
+            verbose=verbose,
+            callbacks=[early_stop]
         )
         
     else:
