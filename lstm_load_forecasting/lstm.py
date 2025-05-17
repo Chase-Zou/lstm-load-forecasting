@@ -277,7 +277,7 @@ def plot_history(model_config=None, history=None, path=None, metrics='mean_absol
         plt.clf()
         
     
-def evaluate_model(model=None, X=None, y=None, batch_size=1, timesteps=None, verbose=0):
+def evaluate_model(model=None, X=None, y=None, batch_size=1, timesteps=7, verbose=0):
     
     max_batch_count = int(X.shape[0] / batch_size)
     
@@ -287,7 +287,7 @@ def evaluate_model(model=None, X=None, y=None, batch_size=1, timesteps=None, ver
     
     X = X[0:max_batch_count*batch_size]
     y = y[0:max_batch_count*batch_size]
-    X = np.reshape(np.array(X), (X.shape[0], timesteps, X.shape[1]))
+
     test_loss, test_mae = model.evaluate(X, y, batch_size=batch_size, verbose=verbose, sample_weight=None)
     
     return test_loss, test_mae
@@ -302,7 +302,7 @@ def get_predictions(model=None, X=None, batch_size=1, timesteps=1, verbose=0):
         print('Dropped the last {} of {} number of obs.'.format(X.shape[0] - max_batch_count*batch_size, X.shape[0]))
     
     X = X[0:max_batch_count*batch_size]
-    X = np.reshape(np.array(X), (X.shape[0], timesteps, X.shape[1]))
+    X = np.reshape(np.array(X), (X.shape[0], timesteps, X.shape[2]))
     predictions = model.predict(x=X, batch_size=batch_size, verbose=verbose)
     
     return predictions
